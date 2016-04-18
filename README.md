@@ -27,15 +27,11 @@ The package exposes a global variable called `LDAP_DEFAULTS` on the server side.
 
 #### Defaults
 
-`LDAP_DEFAULTS.port`: Default port is the ldap default of 389.
-
-`LDAP_DEFAULTS.dn`: The ldap dn you want to authenticate on and search. **Chances are you'll want to set this when calling Meteor.loginWithLdap() from client side. See Client Side Configuration for more details**
-
-`LDAP_DEFAULTS.createNewUser`: Boolean value with a default of `true`. This will create a new Meteor.user if the user has not yet been created with the entered ldap email/username.
-
-`LDAP_DFAULTS.defaultDomain`: Specify the email domain to be used when creating a new user on login. Defaults to `false` - so if the user has entered xyz@site.com and `defaultDomain` is not set, then their email will be saved as xyz@site.com.
-
-`LDAP_DEFAULTS.searchResultsProfileMap`: This can be used if there are attributes at your specified dn that you'd like to use to set properties when creating a new user's profile.
+* `LDAP_DEFAULTS.port`: Default port is the ldap default of 389.
+* `LDAP_DEFAULTS.dn`: The ldap dn you want to authenticate on and search. **Chances are you'll want to set this when calling Meteor.loginWithLdap() from client side. See Client Side Configuration for more details**
+* `LDAP_DEFAULTS.createNewUser`: Boolean value with a default of `true`. This will create a new Meteor.user if the user has not yet been created with the entered ldap email/username.
+* `LDAP_DFAULTS.defaultDomain`: Specify the email domain to be used when creating a new user on login. Defaults to `false` - so if the user has entered xyz@site.com and `defaultDomain` is not set, then their email will be saved as xyz@site.com.
+* `LDAP_DEFAULTS.searchResultsProfileMap`: This can be used if there are attributes at your specified dn that you'd like to use to set properties when creating a new user's profile.
 
 For example, if the results had a 'cn' value of the user's name and a 'tn' value of their phone number, you'd set the `searchResultsProfileMap` to this:
 
