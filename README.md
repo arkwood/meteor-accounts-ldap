@@ -1,28 +1,31 @@
-Meteor Package accounts-ldap
-============================
+# Meteor Package accounts-ldap for Meteor 1.3+
 
-This is inspired by [emgee3's Accounts Ldap for meteor package](https://github.com/emgee3/meteor-accounts-ldap). emgee3's package is a proof of concept - this package is an attempt to move past proof of concept and create something production ready and tested.
+This package is based on [typ:accounts-ldap](https://github.com/typ90/meteor-accounts-ldap) and has been improved to
+support Meteor 1.3+. It is also using the native NPM package for [ldapjs](http://ldapjs.org/)
+
+Big thanks to [Eric Typaldos](https://github.com/typ90) for preparing this package originally and writing most of the documentation.
 
 
-Installation
-------------
+## Installation
 
-You can add this package through Atmosphere by typing:
+You can add this package from within your Meteor project folder:
 
-`meteor add typ:accounts-ldap` from the command line.
+```meteor add ilfrich:accounts-ldap```
 
 **OR if you'd like to customize it a bit:**
 
 Clone this repo and copy it to `/packages` in your Meteor project.
 
 
-Usage
------
+## Usage
 
-#### Server Side Configuration
+
+### Server Side Configuration
+
 The package exposes a global variable called `LDAP_DEFAULTS` on the server side. You **must** specify the `LDAP_DEFAULTS.url` at a minimum. Other options for the defaults are as follows:
 
-##### Defaults
+
+#### Defaults
 
 `LDAP_DEFAULTS.port`: Default port is the ldap default of 389.
 
@@ -54,6 +57,7 @@ user.profile = {
 
 `LDAP_DEFAULTS.base`: This is the base dn used for searches if the searchResultsProfileMap is set.
 
+
 #### LDAPS Support
 
 If you want to use `ldaps` to implement secure authentication, you also need to provide an SSL certificate
@@ -69,7 +73,8 @@ LDAP_DEFAULTS.url = 'ldaps://my-ldap-host.com'; // ldaps protocol
 
 This example configuration will require the `ssl.pem` file to be located in `<your-project-root>/private/ldap/ssl.pem`.
 
-#### Client Side Configuration
+
+### Client Side Configuration
 
 The package exposes a new Meteor login method `Meteor.loginWithLDAP()` which can be called from the client. The usual user and password are required. The third parameter is for custom LDAP options. You'll most likely want to pass in the customLdapOptions.dn on the options object.
 
@@ -89,6 +94,7 @@ Meteor.loginWithLDAP(username, password, {
     console.log(err.reason);
 });
 ```
+
 
 #### Search Before Bind
 
@@ -122,8 +128,8 @@ If you provide the `dn` as option for the `loginWithLDAP` call, the search will 
 the `LDAP_DEFAULTS.dn` as it has the same effect.
 
 
-Issues + Notes
------
+## Issues + Notes
+
 * If your app requires that only LDAP authorized users should be able to login, it is strongly recommended that you
 include the following server-side code to prevent a user from gaining access through Accounts.createUser() on the client, which will otherwise automatically login a newly created (non-LDAP) user:
 ```
@@ -139,8 +145,7 @@ Meteor.startup(function () {
 * Right now Node throws a warning on meteor startup: `{ [Error: Cannot find module './build/Debug/DTraceProviderBindings'] code: 'MODULE_NOT_FOUND' }` because optional dependencies are missing. It doesn't seem to affect the ldapjs functionality, but I'm still trying to figure out how to squelch it. See [this thread](https://github.com/mcavage/node-ldapjs/issues/64). As a workaround, you can re-install the included dtrace-provider NPM package: `<project-root>/.meteor/local/build/programs/server/npm/typ_ldapjs/node_modules/ldapjs$ sudo npm install dtrace-provider`
 
 
-Active Directory
------
+## Active Directory
 
 Using AD you can bind using domain\username. This example works for me:
 
@@ -155,13 +160,3 @@ Meteor.loginWithLDAP(user, password,
   { dn: domain + '\\' + user, search: '(sAMAccountName=' + user + ')' } , function(err, result) { ... }
 );
 ```
-
-
-Going Forward
------
-Please feel free to fork and help improve the repo. I'm very unfamiliar with LDAP and built this package in a way that is probably really specific to my LDAP server configuration. I'm sure configurations vary for everyone, so any suggestions as to how I can make the package more agnostic are **much appreciated**.
-
-
-Roadmap
------
-TODO - need to figure out what features are missing and might make sense to add...

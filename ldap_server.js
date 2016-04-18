@@ -1,4 +1,5 @@
 Future = Npm.require('fibers/future');
+Ldapjs = Npm.require('ldapjs');
 
 // At a minimum, set up LDAP_DEFAULTS.url and .dn according to
 // your needs. url should appear as "ldap://your.url.here"
@@ -15,28 +16,23 @@ LDAP_DEFAULTS = {
     search: '(objectclass=*)',
     ldapsCertificate: false
 };
+LDAP = {};
 
 /**
  @class LDAP
  @constructor
  */
-var LDAP = function(options) {
+LDAP.create = function(options) {
     // Set options
     this.options = _.defaults(options, LDAP_DEFAULTS);
-
     // Make sure options have been set
     try {
         check(this.options.url, String);
-        //check(this.options.dn, String);
     } catch (e) {
         throw new Meteor.Error("Bad Defaults", "Options not set. Make sure to set LDAP_DEFAULTS.url and LDAP_DEFAULTS.dn!");
     }
 
-    // Because NPM ldapjs module has some binary builds,
-    // We had to create a wraper package for it and build for
-    // certain architectures. The package typ:ldap-js exports
-    // "MeteorWrapperLdapjs" which is a wrapper for the npm module
-    this.ldapjs = MeteorWrapperLdapjs;
+    this.ldapjs = Ldapjs;
 };
 
 /**
@@ -49,9 +45,8 @@ var LDAP = function(options) {
  * Additionally the searchBeforeBind parameter can be specified, which is used to search for the DN
  * if not provided.
  */
-LDAP.prototype.ldapCheck = function(options) {
+LDAP.create.prototype.ldapCheck = function(options) {
     var self = this;
-
     options = options || {};
 
     if (options.hasOwnProperty('username') && options.hasOwnProperty('ldapPass')) {
@@ -241,10 +236,10 @@ Accounts.registerLoginHandler("ldap", function(loginRequest) {
 
     // Instantiate LDAP with options
     var userOptions = loginRequest.ldapOptions || {};
-    var ldapObj = new LDAP(userOptions);
+    Accounts.ldapObj = new LDAP.create(userOptions);
 
     // Call ldapCheck and get response
-    var ldapResponse = ldapObj.ldapCheck(loginRequest);
+    var ldapResponse = Accounts.ldapObj.ldapCheck(loginRequest);
 
     if (ldapResponse.error) {
         return {
@@ -285,7 +280,7 @@ Accounts.registerLoginHandler("ldap", function(loginRequest) {
             });
         }
         // Otherwise create user if option is set
-        else if (ldapObj.options.createNewUser) {
+        else if (Accounts.ldapObj.options.createNewUser) {
             var userObject = {
                 username: ldapResponse.username
             };
@@ -293,9 +288,9 @@ Accounts.registerLoginHandler("ldap", function(loginRequest) {
             if (ldapResponse.email) userObject.email = ldapResponse.email;
 
             // Set profile values if specified in searchResultsProfileMap
-            if (ldapResponse.searchResults && ldapObj.options.searchResultsProfileMap.length > 0) {
+            if (ldapResponse.searchResults && Accounts.ldapObj.options.searchResultsProfileMap.length > 0) {
 
-                var profileMap = ldapObj.options.searchResultsProfileMap;
+                var profileMap = Accounts.ldapObj.options.searchResultsProfileMap;
                 var profileObject = {};
 
                 // Loop through profileMap and set values on profile object
